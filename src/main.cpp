@@ -1,7 +1,6 @@
 #include <iostream>
 #include <cstdint>
 #include <fstream>
-#include <string>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -35,30 +34,31 @@ float rgb_to_luma(uint32_t pixel) {
 	return (0.2126*r + 0.7152*g + 0.0722*b);
 }
 
-int main() {
-	std::ofstream test_out;
-	test_out.open("test.txt");
+// TODO: Add command line options.
+// TODO: Allow only supported image types.
+// TODO: Handle vertical and horizontal artifacts.
 
+int main(int argc, char **argv) {
 	int width, height, num_channels;
 	uint32_t *data = (uint32_t *)stbi_load("test.jpg", &width, &height, &num_channels, 4);
 
-	int ascii_image_width = 120;
-	int ascii_image_height = static_cast<int>(ascii_image_width * (height / static_cast<float>(width)) * 0.5);
-	
-	float* ascii_lumens = new float[ascii_image_width * ascii_image_height]{};
-
-	std::cout << "Width: " << width << std::endl;
-	std::cout << "Height: " << height << std::endl;
-	std::cout << "Channels: " << num_channels << std::endl;
-
-	std::cout << "ASCII Image Width: " << ascii_image_width << std::endl;
-	std::cout << "ASCII Image Height: " << ascii_image_height << std::endl;
+	int ascii_image_width = 80;
+	int ascii_image_height = static_cast<int>(ascii_image_width * (height / static_cast<float>(width)) * 0.45);
 
 	int ascii_width_in_pixels = static_cast<int>(width / static_cast<float>(ascii_image_width));
 	int ascii_height_in_pixels = static_cast<int>(height / static_cast<float>(ascii_image_height));
+	
+	float* ascii_lumens = new float[ascii_image_width * ascii_image_height]{};
+	
+	std::cout << "Width ________________ " << width << std::endl;
+	std::cout << "Height _______________ " << height << std::endl;
+	std::cout << "Channels _____________ " << num_channels << std::endl;
 
-	std::cout << "ASCII Char Width: " << ascii_width_in_pixels << std::endl;
-	std::cout << "ASCII Char Height: " << ascii_height_in_pixels << std::endl;
+	std::cout << "ASCII Image Width ____ " << ascii_image_width << std::endl;
+	std::cout << "ASCII Image Height ___ " << ascii_image_height << std::endl;
+
+	std::cout << "ASCII Char Width: ____ " << ascii_width_in_pixels << std::endl;
+	std::cout << "ASCII Char Height: ___ " << ascii_height_in_pixels << std::endl;
 
 	for(int y = 0; y < height; ++y) {
 		for(int x = 0; x < width; ++x) {
@@ -66,13 +66,13 @@ int main() {
 			
 			int ascii_y = static_cast<int>((y / static_cast<float>(height)) * ascii_image_height);
 			int ascii_x = static_cast<int>((x / static_cast<float>(width)) * ascii_image_width);
-
+			
 			ascii_lumens[ascii_y * ascii_image_width + ascii_x] += (luma / (ascii_width_in_pixels * ascii_height_in_pixels));
 		}
 	}
 
 	std::ofstream ascii_out;
-	ascii_out.open("ascii_image.txt");
+	ascii_out.open("test_ascii_image.txt");
 
 	for(int y = 0; y < ascii_image_height; ++y) {
 		for(int x = 0; x < ascii_image_width; ++x) {
@@ -81,7 +81,5 @@ int main() {
 		ascii_out << std::endl;
 	}
 	
-	stbi_image_free(data);
-
 	return 0;
 }

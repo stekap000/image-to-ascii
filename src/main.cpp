@@ -35,22 +35,21 @@ float rgb_to_luma(uint32_t pixel) {
 	return (0.2126*r + 0.7152*g + 0.0722*b);
 }
 
-// TODO: Add command line options.
 // TODO: Allow only supported image types.
 // TODO: Handle vertical and horizontal artifacts.
-
-// -w : ascii image width ( < image width)
-// -h : ascii image height ( < image height)
-// -a : preserve aspect ratio
-// -r : character width to height ratio
-// -in : input image filename
-// -out : output ascii filename
 
 struct cmd_flags_parser {
 	char** begin;
 	char** end;
 
 	struct flags {
+		// -w : ascii image width ( < image width)
+		// -h : ascii image height ( < image height)
+		// -par : preserve aspect ratio
+		// -car : character width to height ratio
+		// -in : input image filename
+		// -out : output ascii filename
+		
 		int width;
 		int height;
 		bool preserve_aspect_ratio;
@@ -79,6 +78,7 @@ struct cmd_flags_parser {
 		return nullptr;
 	}
 
+	// TODO: Set up default values where it makes sense.
 	flags parse_flags() {
 		flags cmd_flags = {};
 
@@ -118,6 +118,8 @@ int main(int argc, char **argv) {
 	std::cout << "Character aspect ratio: " << cmd_flags.character_aspect_ratio << std::endl;
 	std::cout << "Input filename: " << cmd_flags.input_filename << std::endl;
 	std::cout << "Output filename: " << cmd_flags.output_filename << std::endl;
+
+	// TODO: Incorporate flags value into existing code.
 	
 	int width, height, num_channels;
 	uint32_t *data = (uint32_t *)stbi_load("test.jpg", &width, &height, &num_channels, 4);

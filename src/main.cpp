@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdint>
 #include <fstream>
+#include <algorithm>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -37,6 +38,13 @@ float rgb_to_luma(uint32_t pixel) {
 // TODO: Add command line options.
 // TODO: Allow only supported image types.
 // TODO: Handle vertical and horizontal artifacts.
+
+// -w : ascii image width ( < image width)
+// -h : ascii image height ( < image height)
+// -a : preserve aspect ratio
+// -r : character width to height ratio
+// -in : input image filename
+// -out : output ascii filename
 
 int main(int argc, char **argv) {
 	int width, height, num_channels;

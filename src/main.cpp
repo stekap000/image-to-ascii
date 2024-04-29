@@ -46,7 +46,25 @@ float rgb_to_luma(uint32_t pixel) {
 // -in : input image filename
 // -out : output ascii filename
 
+struct cmd_flags_parser {
+	int argc;
+	char **argv;
+	
+	cmd_flags_parser(int argc, char** argv) : argc(argc), argv(argv) {}
+
+	bool flag_exists(std::string& flag) {
+		return false;
+	}
+
+	std::string flag_value(std::string& flag) {
+		std::string s = "";
+		return s;
+	}
+}
+
 int main(int argc, char **argv) {
+	std::find(begin, end, element);
+	
 	int width, height, num_channels;
 	uint32_t *data = (uint32_t *)stbi_load("test.jpg", &width, &height, &num_channels, 4);
 

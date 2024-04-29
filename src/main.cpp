@@ -47,23 +47,77 @@ float rgb_to_luma(uint32_t pixel) {
 // -out : output ascii filename
 
 struct cmd_flags_parser {
-	int argc;
-	char **argv;
+	char** begin;
+	char** end;
+
+	struct flags {
+		int width;
+		int height;
+		bool preserve_aspect_ratio;
+		float character_aspect_ratio;
+		std::string input_filename;
+		std::string output_filename;
+	};
 	
-	cmd_flags_parser(int argc, char** argv) : argc(argc), argv(argv) {}
+	cmd_flags_parser(int argc, char** argv) : begin(argv), end(argv + argc) {}
 
-	bool flag_exists(std::string& flag) {
-		return false;
+	bool flag_present(std::string flag) {
+		return std::find(begin, end, flag) != end;
 	}
 
-	std::string flag_value(std::string& flag) {
-		std::string s = "";
-		return s;
+	char* flag_value(std::string flag) {
+		char **it = std::find(begin, end, flag);
+		if(it != end) {
+			if(++it != end) {
+				return *it;
+			}
+			std::cout << "ERROR: Value for flag [" << flag << "] not provided." << std::endl;
+		
+			return 0;
+		}
+
+		return nullptr;
 	}
-}
+
+	flags parse_flags() {
+		flags cmd_flags = {};
+
+		char *value_result = nullptr;
+		bool present_result = false;
+		
+		value_result = flag_value("-w");
+		if(value_result != nullptr) cmd_flags.width = atoi(value_result);
+
+		value_result = flag_value("-h");
+		if(value_result != nullptr) cmd_flags.height = atoi(value_result);
+
+		present_result = flag_present("-par");
+		if(present_result) cmd_flags.preserve_aspect_ratio = true;
+
+		value_result = flag_value("-car");
+		if(value_result != nullptr) cmd_flags.character_aspect_ratio = atof(value_result);
+
+		value_result = flag_value("-in");
+		if(value_result != nullptr) cmd_flags.input_filename = value_result;
+
+		value_result = flag_value("-out");
+		if(value_result != nullptr) cmd_flags.input_filename = value_result;
+		
+		return cmd_flags;
+	}
+};
 
 int main(int argc, char **argv) {
-	std::find(begin, end, element);
+	cmd_flags_parser parser(argc, argv);
+	cmd_flags_parser::flags cmd_flags = parser.parse_flags();
+
+	std::cout << "FLAGS: " << std::endl;
+	std::cout << "Width: " << cmd_flags.width << std::endl;
+	std::cout << "Height: " << cmd_flags.height << std::endl;
+	std::cout << "Preserve aspect ratio: " << cmd_flags.preserve_aspect_ratio << std::endl;
+	std::cout << "Character aspect ratio: " << cmd_flags.character_aspect_ratio << std::endl;
+	std::cout << "Input filename: " << cmd_flags.input_filename << std::endl;
+	std::cout << "Output filename: " << cmd_flags.output_filename << std::endl;
 	
 	int width, height, num_channels;
 	uint32_t *data = (uint32_t *)stbi_load("test.jpg", &width, &height, &num_channels, 4);

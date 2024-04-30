@@ -12,7 +12,7 @@ ifeq ($(OS),Windows_NT)
 build:
 	mkdir build
 run: build/main.o
-	build/main.o
+	build/main.o -in input.png -par
 clean:
 	rmdir /s /q build
 

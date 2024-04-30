@@ -81,6 +81,11 @@ struct cmd_flags_parser {
 	// TODO: Set up default values where it makes sense.
 	flags parse_flags() {
 		flags cmd_flags = {};
+		cmd_flags.width = 80;
+		cmd_flags.preserve_aspect_ratio = true;
+		cmd_flags.character_aspect_ratio = 0.5;
+		cmd_flags.input_filename = "input.png";
+		cmd_flags.output_filename = "output.txt";
 
 		char *value_result = nullptr;
 		bool present_result = false;
@@ -101,7 +106,7 @@ struct cmd_flags_parser {
 		if(value_result != nullptr) cmd_flags.input_filename = value_result;
 
 		value_result = flag_value("-out");
-		if(value_result != nullptr) cmd_flags.input_filename = value_result;
+		if(value_result != nullptr) cmd_flags.output_filename = value_result;
 		
 		return cmd_flags;
 	}

@@ -35,9 +35,6 @@ float rgb_to_luma(uint32_t pixel) {
 	return (0.2126*r + 0.7152*g + 0.0722*b);
 }
 
-// TODO: Allow only supported image types.
-// TODO: Handle vertical and horizontal artifacts.
-
 struct cmd_flags_parser {
 	char** begin;
 	char** end;
@@ -78,11 +75,10 @@ struct cmd_flags_parser {
 		return nullptr;
 	}
 
-	// TODO: Set up default values where it makes sense.
 	flags parse_flags() {
 		flags cmd_flags = {};
 		cmd_flags.width = 80;
-		cmd_flags.preserve_aspect_ratio = true;
+		cmd_flags.preserve_aspect_ratio = false;
 		cmd_flags.character_aspect_ratio = 0.5;
 		cmd_flags.input_filename = "input.png";
 		cmd_flags.output_filename = "output.txt";
@@ -112,58 +108,60 @@ struct cmd_flags_parser {
 	}
 };
 
+// TODO: Handle vertical and horizontal artifacts.
 int main(int argc, char **argv) {
 	cmd_flags_parser parser(argc, argv);
 	cmd_flags_parser::flags cmd_flags = parser.parse_flags();
 
-	std::cout << "FLAGS: " << std::endl;
-	std::cout << "Width: " << cmd_flags.width << std::endl;
-	std::cout << "Height: " << cmd_flags.height << std::endl;
-	std::cout << "Preserve aspect ratio: " << cmd_flags.preserve_aspect_ratio << std::endl;
-	std::cout << "Character aspect ratio: " << cmd_flags.character_aspect_ratio << std::endl;
-	std::cout << "Input filename: " << cmd_flags.input_filename << std::endl;
-	std::cout << "Output filename: " << cmd_flags.output_filename << std::endl;
-
-	// TODO: Incorporate flags value into existing code.
+	std::cout << "----------FLAGS---------- " << std::endl;
+	std::cout << "ASCII Image Width _______ " << cmd_flags.width << std::endl;
+	std::cout << "ASCII Image Height ______ " << cmd_flags.height << std::endl;
+	std::cout << "Preserve Aspect Ratio ___ " << cmd_flags.preserve_aspect_ratio << std::endl;
+	std::cout << "Character Aspect Ratio __ " << cmd_flags.character_aspect_ratio << std::endl;
+	std::cout << "Input Filename __________ " << cmd_flags.input_filename << std::endl;
+	std::cout << "Output Filename _________ " << cmd_flags.output_filename << std::endl;
 	
-	int width, height, num_channels;
-	uint32_t *data = (uint32_t *)stbi_load("test.jpg", &width, &height, &num_channels, 4);
+	int image_width, image_height, image_num_channels;
+	uint32_t *data = (uint32_t *)stbi_load(cmd_flags.input_filename.c_str(), &image_width, &image_height, &image_num_channels, 4);
 
-	int ascii_image_width = 80;
-	int ascii_image_height = static_cast<int>(ascii_image_width * (height / static_cast<float>(width)) * 0.45);
-
-	int ascii_width_in_pixels = static_cast<int>(width / static_cast<float>(ascii_image_width));
-	int ascii_height_in_pixels = static_cast<int>(height / static_cast<float>(ascii_image_height));
+	if(cmd_flags.preserve_aspect_ratio) {
+		cmd_flags.height = static_cast<int>(cmd_flags.width * (image_height / static_cast<float>(image_width)) * cmd_flags.character_aspect_ratio);
+	}
+	else if(cmd_flags.height != 0) {
+		cmd_flags.height *= cmd_flags.character_aspect_ratio;
+	}
 	
-	float* ascii_lumens = new float[ascii_image_width * ascii_image_height]{};
+	int ascii_width_in_pixels = static_cast<int>(image_width / static_cast<float>(cmd_flags.width));
+	int ascii_height_in_pixels = static_cast<int>(image_height / static_cast<float>(cmd_flags.height));
 	
-	std::cout << "Width ________________ " << width << std::endl;
-	std::cout << "Height _______________ " << height << std::endl;
-	std::cout << "Channels _____________ " << num_channels << std::endl;
+	float* ascii_lumens = new float[cmd_flags.width * cmd_flags.height]{};
 
-	std::cout << "ASCII Image Width ____ " << ascii_image_width << std::endl;
-	std::cout << "ASCII Image Height ___ " << ascii_image_height << std::endl;
+	std::cout << "----------PARAMS---------" << std::endl;
+	std::cout << "Image Width _____________ " << image_width << std::endl;
+	std::cout << "Image Height ____________ " << image_height << std::endl;
+	std::cout << "Channels ________________ " << image_num_channels << std::endl;
+	std::cout << "ASCII Image Width _______ " << cmd_flags.width << std::endl;
+	std::cout << "ASCII Image Height ______ " << cmd_flags.height << std::endl;
+	std::cout << "ASCII Char Width: _______ " << ascii_width_in_pixels << std::endl;
+	std::cout << "ASCII Char Height: ______ " << ascii_height_in_pixels << std::endl;
 
-	std::cout << "ASCII Char Width: ____ " << ascii_width_in_pixels << std::endl;
-	std::cout << "ASCII Char Height: ___ " << ascii_height_in_pixels << std::endl;
-
-	for(int y = 0; y < height; ++y) {
-		for(int x = 0; x < width; ++x) {
-			float luma = rgb_to_luma(data[y * width + x]);
+	for(int y = 0; y < image_height; ++y) {
+		for(int x = 0; x < image_width; ++x) {
+			float luma = rgb_to_luma(data[y * image_width + x]);
 			
-			int ascii_y = static_cast<int>((y / static_cast<float>(height)) * ascii_image_height);
-			int ascii_x = static_cast<int>((x / static_cast<float>(width)) * ascii_image_width);
+			int ascii_y = static_cast<int>((y / static_cast<float>(image_height)) * cmd_flags.height);
+			int ascii_x = static_cast<int>((x / static_cast<float>(image_width)) * cmd_flags.width);
 			
-			ascii_lumens[ascii_y * ascii_image_width + ascii_x] += (luma / (ascii_width_in_pixels * ascii_height_in_pixels));
+			ascii_lumens[ascii_y * cmd_flags.width + ascii_x] += (luma / (ascii_width_in_pixels * ascii_height_in_pixels));
 		}
 	}
 
 	std::ofstream ascii_out;
-	ascii_out.open("test_ascii_image.txt");
+	ascii_out.open(cmd_flags.output_filename);
 
-	for(int y = 0; y < ascii_image_height; ++y) {
-		for(int x = 0; x < ascii_image_width; ++x) {
-			ascii_out << ascii_from_luma(ascii_lumens[y * ascii_image_width + x]);
+	for(int y = 0; y < cmd_flags.height; ++y) {
+		for(int x = 0; x < cmd_flags.width; ++x) {
+			ascii_out << ascii_from_luma(ascii_lumens[y * cmd_flags.width + x]);
 		}
 		ascii_out << std::endl;
 	}

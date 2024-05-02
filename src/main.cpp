@@ -42,6 +42,7 @@ struct cmd_flags_parser {
 	struct flags {
 		// -w : ascii image width ( < image width)
 		// -h : ascii image height ( < image height)
+		// -inv : invert image luma
 		// -par : preserve aspect ratio
 		// -car : character width to height ratio
 		// -in : input image filename
@@ -49,6 +50,7 @@ struct cmd_flags_parser {
 		
 		int width;
 		int height;
+		bool invert_luma;
 		bool preserve_aspect_ratio;
 		float character_aspect_ratio;
 		std::string input_filename;
@@ -78,6 +80,8 @@ struct cmd_flags_parser {
 	flags parse_flags() {
 		flags cmd_flags = {};
 		cmd_flags.width = 80;
+		cmd_flags.height = 40;
+		cmd_flags.invert_luma = false;
 		cmd_flags.preserve_aspect_ratio = false;
 		cmd_flags.character_aspect_ratio = 0.5;
 		cmd_flags.input_filename = "input.png";
@@ -91,6 +95,9 @@ struct cmd_flags_parser {
 
 		value_result = flag_value("-h");
 		if(value_result != nullptr) cmd_flags.height = atoi(value_result);
+
+		present_result = flag_present("-inv");
+		if(present_result) cmd_flags.invert_luma = true;
 
 		present_result = flag_present("-par");
 		if(present_result) cmd_flags.preserve_aspect_ratio = true;
@@ -161,7 +168,10 @@ int main(int argc, char **argv) {
 
 	for(int y = 0; y < cmd_flags.height; ++y) {
 		for(int x = 0; x < cmd_flags.width; ++x) {
-			ascii_out << ascii_from_luma(ascii_lumens[y * cmd_flags.width + x]);
+			if(cmd_flags.invert_luma)
+				ascii_out << ascii_from_luma(1 - ascii_lumens[y * cmd_flags.width + x]);
+			else
+				ascii_out << ascii_from_luma(ascii_lumens[y * cmd_flags.width + x]);
 		}
 		ascii_out << std::endl;
 	}

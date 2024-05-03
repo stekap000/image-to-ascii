@@ -1,6 +1,9 @@
 ## image-to-ascii
 Generate ascii art from images.
 
+### Compilation
+Use compiler directly or use __make__.
+
 ### Command line arguments:
 - __-w__ - ASCII image width (default __80__).
 - __-h__ - ASCII image height (ignored if image aspect ratio is preserved) (default __40__).

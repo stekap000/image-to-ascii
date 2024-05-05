@@ -1,5 +1,5 @@
 ## image-to-ascii
-Generate ascii art from images.
+Program for generating ASCII art from images.
 
 ### Compilation
 Use compiler directly or use __make__.

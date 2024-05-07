@@ -43,6 +43,7 @@ struct cmd_flags_parser {
 		// -w : ascii image width ( < image width)
 		// -h : ascii image height ( < image height)
 		// -inv : invert image luma
+		// -gc : gamma correction of ascii luma
 		// -par : preserve aspect ratio
 		// -car : character width to height ratio
 		// -in : input image filename
@@ -51,6 +52,7 @@ struct cmd_flags_parser {
 		int width;
 		int height;
 		bool invert_luma;
+		float gamma_correction;
 		bool preserve_aspect_ratio;
 		float character_aspect_ratio;
 		std::string input_filename;
@@ -82,8 +84,9 @@ struct cmd_flags_parser {
 		cmd_flags.width = 80;
 		cmd_flags.height = 40;
 		cmd_flags.invert_luma = false;
+		cmd_flags.gamma_correction = 1.f;
 		cmd_flags.preserve_aspect_ratio = false;
-		cmd_flags.character_aspect_ratio = 0.5;
+		cmd_flags.character_aspect_ratio = 0.5f;
 		cmd_flags.input_filename = "input.png";
 		cmd_flags.output_filename = "output.txt";
 
@@ -98,6 +101,9 @@ struct cmd_flags_parser {
 
 		present_result = flag_present("-inv");
 		if(present_result) cmd_flags.invert_luma = true;
+
+		value_result = flag_value("-gc");
+		if(value_result != nullptr) cmd_flags.gamma_correction = atof(value_result);
 
 		present_result = flag_present("-par");
 		if(present_result) cmd_flags.preserve_aspect_ratio = true;
@@ -123,11 +129,13 @@ int main(int argc, char **argv) {
 	std::cout << "----------FLAGS---------- " << std::endl;
 	std::cout << "ASCII Image Width _______ " << cmd_flags.width << std::endl;
 	std::cout << "ASCII Image Height ______ " << cmd_flags.height << std::endl;
+	std::cout << "Invert Luminosity _______ " << cmd_flags.invert_luma << std::endl;
+	std::cout << "Gamma Correction ________ " << cmd_flags.gamma_correction << std::endl;
 	std::cout << "Preserve Aspect Ratio ___ " << cmd_flags.preserve_aspect_ratio << std::endl;
 	std::cout << "Character Aspect Ratio __ " << cmd_flags.character_aspect_ratio << std::endl;
 	std::cout << "Input Filename __________ " << cmd_flags.input_filename << std::endl;
 	std::cout << "Output Filename _________ " << cmd_flags.output_filename << std::endl;
-	
+
 	int image_width, image_height, image_num_channels;
 	uint32_t *data = (uint32_t *)stbi_load(cmd_flags.input_filename.c_str(), &image_width, &image_height, &image_num_channels, 4);
 
@@ -168,10 +176,11 @@ int main(int argc, char **argv) {
 
 	for(int y = 0; y < cmd_flags.height; ++y) {
 		for(int x = 0; x < cmd_flags.width; ++x) {
+			float gamma_corrected = std::pow(ascii_lumens[y * cmd_flags.width + x], cmd_flags.gamma_correction);
 			if(cmd_flags.invert_luma)
-				ascii_out << ascii_from_luma(1 - ascii_lumens[y * cmd_flags.width + x]);
+				ascii_out << ascii_from_luma(1 - gamma_corrected);
 			else
-				ascii_out << ascii_from_luma(ascii_lumens[y * cmd_flags.width + x]);
+				ascii_out << ascii_from_luma(gamma_corrected);
 		}
 		ascii_out << std::endl;
 	}

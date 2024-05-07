@@ -57,6 +57,7 @@ struct cmd_flags_parser {
 		float character_aspect_ratio;
 		std::string input_filename;
 		std::string output_filename;
+		bool verbose;
 		bool help;
 	};
 	
@@ -90,6 +91,7 @@ struct cmd_flags_parser {
 		cmd_flags.character_aspect_ratio = 0.5f;
 		cmd_flags.input_filename = "input.png";
 		cmd_flags.output_filename = "output.txt";
+		cmd_flags.verbose = false;
 		cmd_flags.help = false;
 
 		char *value_result = nullptr;
@@ -119,6 +121,9 @@ struct cmd_flags_parser {
 		value_result = flag_value("-out");
 		if(value_result != nullptr) cmd_flags.output_filename = value_result;
 
+		present_result = flag_present("-v");
+		if(present_result) cmd_flags.verbose = true;
+		
 		present_result = flag_present("-help");
 		if(present_result) cmd_flags.help = true;
 		
@@ -130,16 +135,6 @@ struct cmd_flags_parser {
 int main(int argc, char **argv) {
 	cmd_flags_parser parser(argc, argv);
 	cmd_flags_parser::flags cmd_flags = parser.parse_flags();
-
-	std::cout << "----------FLAGS---------- " << std::endl;
-	std::cout << "ASCII Image Width _______ " << cmd_flags.width << std::endl;
-	std::cout << "ASCII Image Height ______ " << cmd_flags.height << std::endl;
-	std::cout << "Invert Luminosity _______ " << cmd_flags.invert_luma << std::endl;
-	std::cout << "Gamma Correction ________ " << cmd_flags.gamma_correction << std::endl;
-	std::cout << "Preserve Aspect Ratio ___ " << cmd_flags.preserve_aspect_ratio << std::endl;
-	std::cout << "Character Aspect Ratio __ " << cmd_flags.character_aspect_ratio << std::endl;
-	std::cout << "Input Filename __________ " << cmd_flags.input_filename << std::endl;
-	std::cout << "Output Filename _________ " << cmd_flags.output_filename << std::endl;
 
 	if(cmd_flags.help) {
 		std::cout << std::endl;
@@ -168,6 +163,8 @@ int main(int argc, char **argv) {
 		std::cout << "                                  look for image named 'input.png'." << std::endl;
 		std::cout << "-out <string> ___________________ Defines output text file name. By default, program" << std::endl;
 		std::cout << "                                  will use 'output.txt' name." << std::endl;
+		std::cout << "-v ______________________________ Prints used parameters for current program run." << std::endl;
+		std::cout << "                                  By default, it is turned off." << std::endl;
 		std::cout << "-help ___________________________ Prints this help manual and exits the program." << std::endl;
 		std::cout << std::endl;
 
@@ -189,14 +186,25 @@ int main(int argc, char **argv) {
 	
 	float* ascii_lumens = new float[cmd_flags.width * cmd_flags.height]{};
 
-	std::cout << "----------PARAMS---------" << std::endl;
-	std::cout << "Image Width _____________ " << image_width << std::endl;
-	std::cout << "Image Height ____________ " << image_height << std::endl;
-	std::cout << "Channels ________________ " << image_num_channels << std::endl;
-	std::cout << "ASCII Image Width _______ " << cmd_flags.width << std::endl;
-	std::cout << "ASCII Image Height ______ " << cmd_flags.height << std::endl;
-	std::cout << "ASCII Char Width: _______ " << ascii_width_in_pixels << std::endl;
-	std::cout << "ASCII Char Height: ______ " << ascii_height_in_pixels << std::endl;
+	if(cmd_flags.verbose) {
+		std::cout << "--------PARAMETERS-------- " << std::endl;
+		std::cout << "ASCII Image Width ________ " << cmd_flags.width << std::endl;
+		std::cout << "ASCII Image Height _______ " << cmd_flags.height;
+		if(cmd_flags.preserve_aspect_ratio) std::cout << " (IGNORED because of '-par' flag)";
+		std::cout << std::endl;
+		std::cout << "Invert Luminosity ________ " << cmd_flags.invert_luma << std::endl;
+		std::cout << "Gamma Correction _________ " << cmd_flags.gamma_correction;
+		if(cmd_flags.invert_luma) std::cout << " (EFFECT INVERTED bacause of 'inv' flag)";
+		std::cout << std::endl;
+		std::cout << "Preserve Aspect Ratio ____ " << cmd_flags.preserve_aspect_ratio << std::endl;
+		std::cout << "Character Aspect Ratio ___ " << cmd_flags.character_aspect_ratio << std::endl;
+		std::cout << "-------------------------- " << std::endl;
+		std::cout << "Input Filename ___________ " << cmd_flags.input_filename << std::endl;
+		std::cout << "Output Filename __________ " << cmd_flags.output_filename << std::endl;
+		std::cout << "Input Image Width ________ " << image_width << std::endl;
+		std::cout << "Input Image Height _______ " << image_height << std::endl;
+		std::cout << "Input Image Channels _____ " << image_num_channels << std::endl;
+	}
 
 	for(int y = 0; y < image_height; ++y) {
 		for(int x = 0; x < image_width; ++x) {

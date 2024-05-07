@@ -8,11 +8,13 @@ Use compiler directly or use __make__.
 - __-w__ - ASCII image width (default __80__).
 - __-h__ - ASCII image height (ignored if image aspect ratio is preserved) (default __40__).
 - __-inv__ - Invert image luma values (default __false__).
-- __-gc__ - Gamma correction.
+- __-gc__ - Gamma correction. (default __1.0__)
 - __-par__ - Preserve image aspect ratio (default __false__).
-- __-car__ - Character aspect ratio (default __0.5__). This should be set to roughly match character aspect ratio for given display with given font.
+- __-car__ - Character aspect ratio (default __0.5__).
 - __-in__ - Input image file name (default __input.png__).
 - __-out__ - Output text file name (default __output.txt__).
+- __-v__ - Prints verbose information about parameters used. (default __false__)
+- __-help__ - Prints help manual. (default __false__)
 
 ### Examples:
 

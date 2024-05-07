@@ -57,6 +57,7 @@ struct cmd_flags_parser {
 		float character_aspect_ratio;
 		std::string input_filename;
 		std::string output_filename;
+		bool help;
 	};
 	
 	cmd_flags_parser(int argc, char** argv) : begin(argv), end(argv + argc) {}
@@ -89,6 +90,7 @@ struct cmd_flags_parser {
 		cmd_flags.character_aspect_ratio = 0.5f;
 		cmd_flags.input_filename = "input.png";
 		cmd_flags.output_filename = "output.txt";
+		cmd_flags.help = false;
 
 		char *value_result = nullptr;
 		bool present_result = false;
@@ -116,6 +118,9 @@ struct cmd_flags_parser {
 
 		value_result = flag_value("-out");
 		if(value_result != nullptr) cmd_flags.output_filename = value_result;
+
+		present_result = flag_present("-help");
+		if(present_result) cmd_flags.help = true;
 		
 		return cmd_flags;
 	}
@@ -135,6 +140,39 @@ int main(int argc, char **argv) {
 	std::cout << "Character Aspect Ratio __ " << cmd_flags.character_aspect_ratio << std::endl;
 	std::cout << "Input Filename __________ " << cmd_flags.input_filename << std::endl;
 	std::cout << "Output Filename _________ " << cmd_flags.output_filename << std::endl;
+
+	if(cmd_flags.help) {
+		std::cout << std::endl;
+		std::cout << "-w <positive integer number> ____ Width in characters for resulting ASCII image." << std::endl;
+		std::cout << "                                  Default value is 80." << std::endl;
+		std::cout << "-h <positive integer number> ____ Height in characters for resulting ASCII image." << std::endl;
+		std::cout << "                                  Default value is 40." << std::endl;
+		std::cout << "-inv ____________________________ Inverts image luminosity values. Useful when" << std::endl;
+		std::cout << "                                  object of interest is darker than the background." << std::endl;
+		std::cout << "                                  By default, this flag is turned off." << std::endl;
+		std::cout << "-gc <positive decimal number> ___ Gamma correction done by using powers of luminosity." << std::endl;
+		std::cout << "                                  Values between 0 and 1 increase luminosity. Values" << std::endl;
+		std::cout << "                                  higher than 1 decrease it." << std::endl;
+		std::cout << "                                  If inversion is used ('-inv' flag), then impact of" << std::endl;
+		std::cout << "                                  these values is inverted." << std::endl;
+		std::cout << "                                  By default, value is 1.0." << std::endl;
+		std::cout << "-par ____________________________ Preserves aspect ratio of original image by looking" << std::endl;
+		std::cout << "                                  at defined width ('-w' flag)." << std::endl;
+		std::cout << "                                  If this flag is used, then '-h' flag has no impact." << std::endl;
+		std::cout << "                                  By default, this flag is turned off." << std::endl;
+		std::cout << "-car <positive decimal number> __ This is used to inform program about aspect ratio" << std::endl;
+		std::cout << "                                  of characters on given machine." << std::endl;
+		std::cout << "                                  By default, value is 0.5, meaning that character" << std::endl;
+		std::cout << "                                  width is 0.5 * character height." << std::endl;
+		std::cout << "-in <string> ____________________ Defines input image name. By default, program will" << std::endl;
+		std::cout << "                                  look for image named 'input.png'." << std::endl;
+		std::cout << "-out <string> ___________________ Defines output text file name. By default, program" << std::endl;
+		std::cout << "                                  will use 'output.txt' name." << std::endl;
+		std::cout << "-help ___________________________ Prints this help manual and exits the program." << std::endl;
+		std::cout << std::endl;
+
+		return 0;
+	}
 
 	int image_width, image_height, image_num_channels;
 	uint32_t *data = (uint32_t *)stbi_load(cmd_flags.input_filename.c_str(), &image_width, &image_height, &image_num_channels, 4);

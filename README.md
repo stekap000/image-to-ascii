@@ -1,5 +1,5 @@
 ## image-to-ascii
-Program for generating ASCII art from images.
+Program for generating ASCII art from images. Allows specification of output image dimensions (with aspect ratio preservation), image brightness inversion and gamma correction.
 
 ### Compilation
 Use compiler directly or use __make__.

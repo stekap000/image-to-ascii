@@ -21,6 +21,6 @@ Use compiler directly or use __make__.
 <img src="https://github.com/stekap000/image-to-ascii/assets/80646042/fa57886e-013c-4e0d-8914-292546395187" width="800" height="auto">
 <img src="https://github.com/stekap000/image-to-ascii/assets/80646042/9f3cd0eb-a48e-4555-915a-79df074c6880" width="800" height="auto">
 
-#### Inversion:
+#### Inversion (without gamma correction):
 <img src="https://github.com/stekap000/image-to-ascii/assets/80646042/f68340cd-bcff-4b99-9023-8c656149e45e" width="397" height="auto">
 <img src="https://github.com/stekap000/image-to-ascii/assets/80646042/ec5899ab-a83f-486d-9518-acc35ccc89f8" width="397" height="auto">
